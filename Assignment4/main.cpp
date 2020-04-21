@@ -219,17 +219,8 @@ int HashInsert(HashStruct T[], char *key, int data, int hNum, int dhNum)
 //-----------------------------------
 int Hash_1(char *key)
 {
-    int power = 31;
-    int hash = 0;
-    for (int i = 0; i < 4; i++)
-    {
-      hash = (key[i] - '0');
-      hash = hash * power;
-      for (int j = (3 - i); j > 0; j--)
-      {
-        hash *= power;
-      }
-    }
+    //Base-26
+    int hash = ((key[0] - 'A' + 1) * pow(26, 3) + (key[1] - 'A' + 1) * pow(26, 2) + (key[2] - 'A' + 1) * pow(26, 1) + (key[3] - 'A' + 1) * pow(26, 0));
     return hash %= TABLESIZE;
 }
 
@@ -240,6 +231,7 @@ int Hash_1(char *key)
 //-----------------------------------
 int Hash_2(char *key)
 {
+    //Middle Squaring. hash = (B + C)^2 % TABLESIZE
     int hash = ((key[1] - '0') + (key[2] - '0'));
     hash = (hash * hash);
     return hash %= TABLESIZE;
@@ -252,9 +244,8 @@ int Hash_2(char *key)
 //-----------------------------------
 int Hash_3(char *key)
 {
-    int hash = (((key[0] - '0') + (key[1] - '0')) * 34);
-    hash += (((key[1] - '0') + (key[2] - '0')) * 55);
-    hash += (((key[2] - '0') + (key[3] - '0')) * 89);
+    //Folding. ("AB" + "CD") % TABLESIZE
+    int hash = (((key[0] - '0') * (key[1] - '0')) + ((key[2] - '0') * (key[3] - '0')));
     return hash %= TABLESIZE;
 }
 
@@ -265,6 +256,7 @@ int Hash_3(char *key)
 //------------------------------------------
 int ProbeDec_1(char *key)
 {
+    //Linear Probing
     return 1;
 }
 
@@ -275,9 +267,16 @@ int ProbeDec_1(char *key)
 //------------------------------------------
 int ProbeDec_2(char *key)
 {
+    //Fibonnaci numbers. doubleHash = ((A*(233)) + (B*55)) % TABLESIZE
     int doubleHash = ((key[0] - '0') * 233);
     doubleHash += ((key[1] - '0') * 55);
-    return doubleHash %= TABLESIZE;
+    doubleHash %= TABLESIZE;
+    if(doubleHash == 99 || doubleHash == 0) {
+        return 100;
+    }
+    else {
+        return doubleHash;
+    }
 }
 
 //------------------------------------------
@@ -287,7 +286,14 @@ int ProbeDec_2(char *key)
 //------------------------------------------
 int ProbeDec_3(char *key)
 {
+    //Fibonnaci numbers. doubleHash = ((A*21) + (B*34) + (C*55) + (D*89)) % TABLESIZE
     int doubleHash = (((key[0] - '0') * 21) + ((key[1] - '0') * 34));
     doubleHash += (((key[2] - '0') * 55) + ((key[3] - '0') * 89));
-    return doubleHash %= TABLESIZE;
+    doubleHash %= TABLESIZE;
+    if(doubleHash == 99 || doubleHash == 0) {
+        return 100;
+    }
+    else {
+        return doubleHash;
+    }
 }
